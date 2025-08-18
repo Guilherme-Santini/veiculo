@@ -1,5 +1,6 @@
 package com.veiculo.Entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.Column;
@@ -22,6 +23,11 @@ public class Veiculo {
 
     @Column(nullable = false, length = 50)
     private String cor;
+
+    //precision = 10 - até 10 dígitos totais
+    //scale = 2 - 2 casas decimais (ex: 99.999.999,99)
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valor;
 
     @Column(nullable = false)
     private Integer ano;
