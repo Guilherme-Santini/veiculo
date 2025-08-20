@@ -1,4 +1,4 @@
-package com.veiculo.Entity;
+package com.veiculo.entity;
 
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;

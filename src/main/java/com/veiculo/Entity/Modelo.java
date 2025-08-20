@@ -1,4 +1,4 @@
-package com.veiculo.Entity;
+package com.veiculo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
