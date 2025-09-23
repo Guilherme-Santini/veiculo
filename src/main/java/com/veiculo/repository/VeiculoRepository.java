@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.veiculo.entity.Veiculo;
 
-//@Repository
+@Repository
 public interface VeiculoRepository extends JpaRepository<Veiculo, Long>{
-    //boolean existsByNome(String nome);
+    boolean existsByPlaca(String placa);
 }

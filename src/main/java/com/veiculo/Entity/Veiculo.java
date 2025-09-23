@@ -46,11 +46,12 @@ public class Veiculo {
     public Veiculo() {
     }
 
-    public Veiculo(Long id, String placa, String cor, Integer ano, String descricao, LocalDateTime dataCadastro,
+    public Veiculo(Long id, String placa, String cor, BigDecimal valor, Integer ano, String descricao, LocalDateTime dataCadastro,
             Modelo modelo) {
         this.id = id;
         this.placa = placa;
         this.cor = cor;
+        this.valor = valor;
         this.ano = ano;
         this.descricao = descricao;
         this.dataCadastro = dataCadastro;
@@ -81,6 +82,8 @@ public class Veiculo {
         this.cor = cor;
     }
 
+
+    
     public Integer getAno() {
         return ano;
     }
@@ -111,6 +114,14 @@ public class Veiculo {
 
     public void setModelo(Modelo modelo) {
         this.modelo = modelo;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
     }
 
 

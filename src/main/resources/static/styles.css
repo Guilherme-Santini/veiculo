@@ -1,0 +1,17 @@
+*{
+    margin: 0px;
+}
+header{
+    background-color: #f8f9fa;
+    height: 150px;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+div{
+    border: 1px solid black;
+    width: 300px;
+    height: 40px;
+    padding: 15px;
+}
