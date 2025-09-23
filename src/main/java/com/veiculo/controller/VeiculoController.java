@@ -13,36 +13,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.veiculo.dto.ModeloDTO;
-import com.veiculo.service.ModeloService;
+import com.veiculo.dto.VeiculoDTO;
+import com.veiculo.service.VeiculoService;
 
 @RestController
-@RequestMapping("/api/modelos")
-public class ModeloController {
-    
+@RequestMapping("/api/veiculos")
+public class VeiculoController {
+
     @Autowired
-    private ModeloService service;
+    private VeiculoService service;
 
 
     @GetMapping
-    public List<ModeloDTO> listar(){
+    public List<VeiculoDTO> listar() {
         return service.listar();
     }
 
     @GetMapping("/{id}")
-    public ModeloDTO buscar(@PathVariable Long id) {
+    public VeiculoDTO buscar(@PathVariable Long id) {
         return service.buscarPorId(id);
     }
 
     @PostMapping
-    public ResponseEntity<ModeloDTO> criar(@RequestBody ModeloDTO dto) {
-        ModeloDTO criado = service.criar(dto);
+    public ResponseEntity<VeiculoDTO> criar(@RequestBody VeiculoDTO dto) {
+        VeiculoDTO criado = service.criar(dto);
         return ResponseEntity.created(null).body(criado);
     }
-
+    
     @PutMapping
-    public ModeloDTO atualizar ( @RequestBody ModeloDTO dto) {
-
+    public VeiculoDTO atualizar (@RequestBody VeiculoDTO dto) {
         return service.atualizar(dto);
     }
 
@@ -50,6 +49,5 @@ public class ModeloController {
     public ResponseEntity<Void> deletar (@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();
-    }   
-
+    }
 }
