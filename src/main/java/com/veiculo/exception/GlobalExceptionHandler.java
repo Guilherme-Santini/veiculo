@@ -4,8 +4,11 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -13,7 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
 
-
+    // responsável por formatar o corpo padrão da resposta de erro
     private ResponseEntity<Object> body(HttpStatus status, String message) {
         Map<String, Object> map = new HashMap<>();
         map.put("timestamp", Instant.now().toString());
@@ -32,15 +35,49 @@ public class GlobalExceptionHandler {
         };
     }
 
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Object> handleRuntime(RuntimeException ex) {
+        String msg = ex.getMessage();
+        if (msg != null) {
+            String lower = msg.toLowerCase();
+            if (lower.contains("não encontrado")) {
+                return body(HttpStatus.NOT_FOUND, msg);
+            }
+            if (lower.contains("veículos associados") ||
+                lower.contains("não é possível excluir") ||
+                lower.contains("existem veículos")) {
+                return body(HttpStatus.CONFLICT, msg);                
+            }
+        }
+        return body(HttpStatus.INTERNAL_SERVER_ERROR, msg); //500
+        
+    }
+
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
         String msg = ex.getMessage();
         String lower = msg == null ? "" : msg.toLowerCase();
         if (lower.contains("já existe")) {
-            return body(HttpStatus.CONFLICT, msg);
+            return body(HttpStatus.CONFLICT, msg); //409
         }
-        return body(HttpStatus.BAD_REQUEST, msg);
+        return body(HttpStatus.BAD_REQUEST, msg); //400
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrity(DataIntegrityViolationException ex) {
+        return body(HttpStatus.CONFLICT, "Violação de integridade");
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex) {
+        return body(HttpStatus.BAD_REQUEST, "Dados inválidos");
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<Object> handlePropertyReference(PropertyReferenceException ex) {
+        return body(HttpStatus.BAD_REQUEST, "Propriedade de ordenação inválida: " + ex.getPropertyName());
+    }
 
 }

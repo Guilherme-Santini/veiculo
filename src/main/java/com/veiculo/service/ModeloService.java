@@ -42,10 +42,12 @@ public class ModeloService {
         if (!repository.existsById(id)) {
             throw new RuntimeException("Modelo não encontrado");
         }
+        if (repository.temVeiculosAssociados(id)) {
+            throw new RuntimeException("Não é possível excluir o modelo. Existem veículos associados a ele");
+        }
+        
         repository.deleteById(id);
     }
-
-
 
     @Transactional(readOnly = true)
     public List<ModeloDTO> listar() {

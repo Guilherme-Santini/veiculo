@@ -44,11 +44,24 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #
 .btn.outline:hover { background: var(--brand-accent-soft); border-color: var(--brand-mid); }
 .btn:focus { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
 
+
 /* Logo SVG refinamento */
 .logo svg { display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
 
-.section{
+.minha-section{
   display: none;
+}
+
+
+
+.botao-novo{
+  margin-top: 20px;
+  background-color: var(--brand-accent);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
 }
 
 /* Responsividade */
@@ -72,6 +85,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #
   .site-header { padding: 10px 16px; }
 }
 
+
 table {
   margin: 0 auto;              /* Centraliza a tabela na página */
   border-collapse: collapse;   /* Junta as bordas da tabela */
@@ -88,3 +102,81 @@ th {
   background-color: #f2f2f2;   /* Cor de fundo para o cabeçalho */
 }
 
+#modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  width: 300px;
+  height: auto;
+}
+
+#close-modal {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  cursor: pointer;
+
+  width: 25px; /* aumenta um pouco o tamanho para ficar mais visível */
+  height: 25px;
+
+  background-color: var(--brand-accent); /* azul claro definido por você */
+  border: 1px solid var(--border-color);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: white; /* cor do "×" */
+  font-size: 18px; /* tamanho do "×" */
+  font-weight: bold; /* deixa o "×" mais destacado */
+  line-height: 1;              /* evita desalinhamento vertical */
+  border-radius: var(--radius-sm);
+}
+
+#modal-fabricante-title {
+  font-weight: 600;
+}
+
+#form-modelo,
+#form-fabricante {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+}
+
+#modal input{
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+#modal label{
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+#modal select{
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+#modal button {
+  background: var(--brand-mid);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
