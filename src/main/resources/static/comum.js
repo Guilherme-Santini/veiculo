@@ -23,6 +23,7 @@ function getMaskFormatMoney(valor){
 async function setDelete(url) {
     try {
         const response = await fetch(url, {method: "DELETE"});
+        
         if (response.ok) {
             //throw new Error(`Response status: ${response.status}`);
             return response;

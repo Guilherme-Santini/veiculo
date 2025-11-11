@@ -4,13 +4,6 @@ const criarTabelaVeiculos = function(dados) {
     const thead = document.createElement("thead");
     const tbody = document.createElement("tbody");
 
-    const trTittle = document.createElement("tr");
-    const th = document.createElement("th");
-    th.textContent = "Veículo";
-    th.colSpan = 9;
-    trTittle.appendChild(th);
-    thead.appendChild(trTittle);
-
     const cabecalho = ["Modelo", "Fabricante", "País de Origem", "Ano", "Cor", "Descrição", "Valor" ,"Placa","Deletar"];
     const tr = document.createElement("tr");
     cabecalho.forEach(function(campo) {
@@ -18,6 +11,13 @@ const criarTabelaVeiculos = function(dados) {
         th.textContent = campo;
         tr.appendChild(th);
     });
+
+    const trTittle = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = "Veículo";
+    th.colSpan = cabecalho.length;
+    trTittle.appendChild(th);
+    thead.appendChild(trTittle);
 
     tabela.classList.add("table-dados");
 
