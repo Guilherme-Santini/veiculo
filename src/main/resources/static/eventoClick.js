@@ -48,19 +48,19 @@ async function criarFabricante() {
 }
 
 //click botão header fabricante
-document.getElementById("bt-fabricantes").addEventListener("click",  criarFabricante);
+document.getElementById("bt-fabricantes").addEventListener("click", criarFabricante);
 
 //Botão click novo fabricante
-document.getElementById("novo-fabricante").addEventListener("click", async function(event) {
+document.getElementById("novo-fabricante").addEventListener("click", async function (event) {
     setMostrarOcultarElemento(true, ".modal-content");
 
     //carregar json com nomes de paises do arquivo externo json
-    const dadosPaises = await getData ("http://localhost:8080/paises.json");
+    const dadosPaises = await getData("http://localhost:8080/paises.json");
     const selectPais = document.getElementById("pais-fabricante");
     setRemoverElementos("#pais-fabricante option");
-    
 
-    dadosPaises.forEach(function(pais){
+
+    dadosPaises.forEach(function (pais) {
         const option = document.createElement("option");
         option.value = pais.nome_pais;
         option.textContent = pais.nome_pais + " (" + pais.sigla + ")";
@@ -72,7 +72,7 @@ document.getElementById("novo-fabricante").addEventListener("click", async funct
 });
 
 //evento de click para salvar novo fabricante
-document.getElementById("botao-enviar-fabricante").addEventListener("click", async function(event) {
+document.getElementById("botao-enviar-fabricante").addEventListener("click", async function (event) {
     event.preventDefault();
     const nome_Fabricante = document.getElementById("nome-fabricante").value.trim();
     console.log(nome_Fabricante)
@@ -82,13 +82,13 @@ document.getElementById("botao-enviar-fabricante").addEventListener("click", asy
         "paisOrigem": pais_Origem
     };
 
-    if(!nome_Fabricante || !pais_Origem){
+    if (!nome_Fabricante || !pais_Origem) {
         alert("Preencha todos os campos!");
         return;
     }
 
     const dadosFabricantes = await setPost("http://localhost:8080/api/fabricantes", dadosFabricanteJson);
-    if(dadosFabricantes.status === 201){
+    if (dadosFabricantes.status === 201) {
         alert("Fabricante adicionado com sucesso!")
         document.getElementById("nome-fabricante").value = "";
         document.getElementById("pais-fabricante").value = "";
@@ -96,10 +96,31 @@ document.getElementById("botao-enviar-fabricante").addEventListener("click", asy
 
         criarFabricante()
 
-    }else {
+    } else {
         alert("Erro ao adicionar o Fabricante")
     }
 });
+
+//função deletar fabricante
+
+const deletarFabricante = async (item, tableTittle) => {
+
+    const confirmacao = confirm("Deseja excluir o "+ tableTittle + " " + item.nome + "?");
+
+    if (!confirmacao) return;
+
+    try {
+        const resultado = await setDelete(`http://localhost:8080/api/fabricantes/${item.id}`);
+
+        if (resultado.status === 204) {
+            return resultado;
+        }
+
+    } catch (error) {
+        console.error("Erro ao deletar " + item.nome + ". Erro: "+ error)
+    }
+
+}
 
 
 //MODELOS
@@ -121,10 +142,10 @@ async function criarModelo() {
 }
 
 //click botão header modelo
-document.getElementById("bt-modelos").addEventListener("click",  criarModelo);
+document.getElementById("bt-modelos").addEventListener("click", criarModelo);
 
 
-//Botão click novo fabricante
+//Botão click novo modelo
 document.getElementById("novo-modelo").addEventListener("click", async function (event) {
     setMostrarOcultarElemento(true, ".modal-content");
     const dadosFabricantes = await getData("http://localhost:8080/api/fabricantes");
@@ -135,7 +156,7 @@ document.getElementById("novo-modelo").addEventListener("click", async function 
     setRemoverElementos("#fabricante-modelo option");
 
     document.getElementById("fabricante-modelo").appendChild(new Option("Selecione um fabricante", ""));
-    dadosFabricantes.forEach(function(fabricante){
+    dadosFabricantes.forEach(function (fabricante) {
         const option = document.createElement("option");
         option.value = fabricante.id;
         option.textContent = fabricante.nome + " (" + fabricante.paisOrigem + ")";
@@ -143,13 +164,11 @@ document.getElementById("novo-modelo").addEventListener("click", async function 
     });
 
     MODAL.style.display = "block";
-    setMostrarOcultarElemento(false, ".modal-content-modelo");    
+    setMostrarOcultarElemento(false, ".modal-content-modelo");
 });
 
-
-
 //Mostra a tabela veículos
-document.getElementById("bt-veiculos").addEventListener("click", async function(event) {
+document.getElementById("bt-veiculos").addEventListener("click", async function (event) {
     setMostrarOcultarElemento(true, ".minha-section");
     // removeTabelaRepetida("table-veiculos");
     setRemoverElementos(".table-dados");
@@ -161,19 +180,37 @@ document.getElementById("bt-veiculos").addEventListener("click", async function(
 });
 
 
+//evento de click para salvar novo fabricante
+document.getElementById("botao-enviar-modelo").addEventListener("click", async function (event) {
+    event.preventDefault();
+    const nome_Modelo = document.getElementById("nome-modelo").value.trim();
+    const fabricante_Modelo = document.getElementById("fabricante-modelo").value.trim();
+    const dadosModeloJson = {
+        "nome" : nome_Modelo,
+        "fabricante":{
+            "id": fabricante_Modelo,
+        }
+    };
 
+    if (!nome_Modelo || !fabricante_Modelo) {
+        alert("Preencha todos os campos!");
+        return;
+    }
 
-// document.getElementById("botao-enviar-modelo").addEventListener("click", async function (event) {
-//     event.preventDefault();
-//     const nome_Modelo = document.getElementById("nome-modelo").value.trim();
-//     const fabricante_Modelo = document.getElementById("fabricante-modelo").value.trim();
-//     const dadosModeloJson = {
+    const dadosModelos = await setPost("http://localhost:8080/api/modelos", dadosModeloJson);
+    if (dadosModelos.status === 201) {
+        alert("Fabricante adicionado com sucesso!")
+        document.getElementById("nome-modelo").value = "";
+        document.getElementById("fabricante-modelo").value = "";
+        MODAL.style.display = "none";
 
+        criarModelo()
 
+    } else {
+        alert("Erro ao adicionar o Modelo")
+    }
+});
 
-//     };
-// });
-
-CLOSE_MODAL_BUTTON.addEventListener("click", function() {
+CLOSE_MODAL_BUTTON.addEventListener("click", function () {
     MODAL.style.display = "none";
 })

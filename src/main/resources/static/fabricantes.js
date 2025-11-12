@@ -37,17 +37,16 @@ const criarTabela = function(dados) {
         const tdPaisOrigem = document.createElement("td");
         tdPaisOrigem.textContent = item.paisOrigem;
         tr.appendChild(tdPaisOrigem);
+                
 
         const deletar = document.createElement("td");
         deletar.innerHTML = '<button class="btn">Deletar</button>';
-        deletar.addEventListener("click", async function () {
-            const resultado = await setDelete(`http://localhost:8080/api/fabricantes/${item.id}`);
-
-            if (resultado.status === 204) {
-                this.parentElement.remove();
-            } else {
-                alert("Erro ao deletar fabricante")
+        deletar.addEventListener("click", () => {
+            const linha = deletar.parentElement;
+            if(deletarFabricante(item, trTitle.textContent).ok){
+                linha.remove();
             }
+
         });
 
         tr.appendChild(deletar)

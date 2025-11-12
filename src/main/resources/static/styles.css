@@ -31,7 +31,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #
 .brand-text { font-size: 1.4rem; font-weight: 700; color: var(--brand-dark); letter-spacing: .5px; }
 
 .main-nav ul { list-style: none; display: flex; gap: 32px; }
-.main-nav a { text-decoration: none; font-weight: 500; font-size: 0.95rem; color: var(--text-color); position: relative; padding: 6px 2px; }
+.main-nav a { text-decoration: none; font-weight: 500; font-size: 0.95rem; color: var(--text-color); position: relative; padding: 6px 2px;  cursor: pointer;}
 .main-nav a::after { content: ""; position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: linear-gradient(90deg,var(--brand-dark),var(--brand-accent)); transition: width .28s ease; border-radius: 2px; }
 .main-nav a:hover::after, .main-nav a:focus::after { width: 100%; }
 .main-nav a:hover { color: var(--brand-dark); }
