@@ -64,18 +64,15 @@ const criarTabelaVeiculos = function(dados) {
 
         //Placa
         const tdPlaca = document.createElement("td");
-        tdPlaca.textContent = item.placa.substring(0, 3) + "**" + item.placa.substring(5, 7)
+        tdPlaca.textContent = item.placa.substring(0, 3) + "**" + item.placa.substring(5, 7);
         tr.appendChild(tdPlaca);
 
         const deletar = document.createElement("td");
         deletar.innerHTML = '<button class="btn">Deletar</button>';
         deletar.addEventListener("click", async function () {
-            const resultado = await setDelete(`http://localhost:8080/api/veiculos/${item.id}`);
-
-            if (resultado.status === 204) {
-                this.parentElement.remove();
-            } else {
-                alert("Erro ao deletar modelo")
+            const linha = deletar.parentElement;
+            if(deletarFabricante(item, trTittle.textContent, "veiculos").ok){
+                linha.remove();
             }
         });
 

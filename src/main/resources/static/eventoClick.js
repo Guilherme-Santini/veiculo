@@ -101,20 +101,28 @@ document.getElementById("botao-enviar-fabricante").addEventListener("click", asy
     }
 });
 
-//função deletar fabricante
+//função deletar fabricante/modelo/veículo
 
-const deletarFabricante = async (item, tableTittle) => {
+const deletarFabricante = async (item, tableTittle, endPoint) => {
 
     const confirmacao = confirm("Deseja excluir o "+ tableTittle + " " + item.nome + "?");
 
     if (!confirmacao) return;
 
     try {
-        const resultado = await setDelete(`http://localhost:8080/api/fabricantes/${item.id}`);
+        const resultado = await setDelete(`http://localhost:8080/api/${endPoint}/${item.id}`);
 
         if (resultado.status === 204) {
+            if (endPoint == "fabricantes") {
+                criarFabricante()    
+            } 
+            if (endPoint == "modelos"){
+                criarModelo()
+            }
             return resultado;
         }
+
+        
 
     } catch (error) {
         console.error("Erro ao deletar " + item.nome + ". Erro: "+ error)
@@ -167,20 +175,7 @@ document.getElementById("novo-modelo").addEventListener("click", async function 
     setMostrarOcultarElemento(false, ".modal-content-modelo");
 });
 
-//Mostra a tabela veículos
-document.getElementById("bt-veiculos").addEventListener("click", async function (event) {
-    setMostrarOcultarElemento(true, ".minha-section");
-    // removeTabelaRepetida("table-veiculos");
-    setRemoverElementos(".table-dados");
-    document.querySelector("#veiculos").style.display = "block";
-    const dadosVeiculos = await getData("http://localhost:8080/api/veiculos");
-    if (dadosVeiculos) {
-        document.querySelector("#veiculos").appendChild(criarTabelaVeiculos(dadosVeiculos, "Veiculos", "table-dados"));
-    }
-});
-
-
-//evento de click para salvar novo fabricante
+//evento de click para salvar novo modelo
 document.getElementById("botao-enviar-modelo").addEventListener("click", async function (event) {
     event.preventDefault();
     const nome_Modelo = document.getElementById("nome-modelo").value.trim();
@@ -210,6 +205,29 @@ document.getElementById("botao-enviar-modelo").addEventListener("click", async f
         alert("Erro ao adicionar o Modelo")
     }
 });
+
+
+//VEÍCULOS
+
+//Mostra a tabela veículos
+document.getElementById("bt-veiculos").addEventListener("click", async function (event) {
+    setMostrarOcultarElemento(true, ".minha-section");
+    // removeTabelaRepetida("table-veiculos");
+    setRemoverElementos(".table-dados");
+    document.querySelector("#veiculos").style.display = "block";
+    const dadosVeiculos = await getData("http://localhost:8080/api/veiculos");
+    if (dadosVeiculos) {
+        document.querySelector("#veiculos").appendChild(criarTabelaVeiculos(dadosVeiculos, "Veiculos", "table-dados"));
+    }
+});
+
+//botão click novo veículo
+document.getElementById("novo-veiculo").addEventListener("click", async function (event) {
+    setMostrarOcultarElemento(true, ".modal-content")
+    MODAL.style.display = "block";
+    setMostrarOcultarElemento(false, ".modal-content-veiculo");
+})
+
 
 CLOSE_MODAL_BUTTON.addEventListener("click", function () {
     MODAL.style.display = "none";

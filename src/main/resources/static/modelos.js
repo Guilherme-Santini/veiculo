@@ -48,7 +48,7 @@ const criarTabelaModelo = function(dados) {
         deletar.innerHTML = '<button class="btn">Deletar</button>';
         deletar.addEventListener("click", () => {
             const linha = deletar.parentElement;
-            if(deletarFabricante(item, trTittle.textContent).ok){
+            if(deletarFabricante(item, trTittle.textContent, "modelos").ok){
                 linha.remove();
             }
 

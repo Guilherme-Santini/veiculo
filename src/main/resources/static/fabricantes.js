@@ -12,12 +12,12 @@ const criarTabela = function(dados) {
         tr.appendChild(th);
     });
 
-    const trTitle = document.createElement("tr");
+    const trTittle = document.createElement("tr");
     const th = document.createElement("th");
     th.textContent = "Fabricante";
     th.colSpan = cabecalho.length;
-    trTitle.appendChild(th);
-    thead.appendChild(trTitle);
+    trTittle.appendChild(th);
+    thead.appendChild(trTittle);
 
 
     tabela.classList.add("table-dados");
@@ -43,7 +43,7 @@ const criarTabela = function(dados) {
         deletar.innerHTML = '<button class="btn">Deletar</button>';
         deletar.addEventListener("click", () => {
             const linha = deletar.parentElement;
-            if(deletarFabricante(item, trTitle.textContent).ok){
+            if(deletarFabricante(item, trTittle.textContent, "fabricantes").ok){
                 linha.remove();
             }
 
