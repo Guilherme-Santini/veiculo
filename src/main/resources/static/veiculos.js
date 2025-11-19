@@ -67,29 +67,266 @@ const criarTabelaVeiculos = function(dados) {
         tdPlaca.textContent = item.placa.substring(0, 3) + "**" + item.placa.substring(5, 7);
         tr.appendChild(tdPlaca);
 
-        const deletar = document.createElement("td");
-        deletar.innerHTML = '<button class="btn">Deletar</button>';
-        deletar.addEventListener("click", async function () {
-            const linha = deletar.parentElement;
-            if(deletarFabricante(item, trTittle.textContent, "veiculos").ok){
-                linha.remove();
+        const tddeletar = document.createElement("td");
+        tddeletar.innerHTML = '<button class="btn">Deletar</button>';
+        tddeletar.addEventListener("click", async function () {
+            if (confirm("Tem certeza que deseja excluir este veículo?")) {
+                const resultado = await setDelete(`http://localhost:8080/api/veiculos/${item.id}`);
+
+                if (isSuccess(resultado)) {
+                    this.parentElement.remove();
+                    alert("Veículo excluído com sucesso!")
+                } else {
+                    mostrarErro(resultado);
+                }
             }
         });
 
-        tr.appendChild(deletar)
+        tr.appendChild(tddeletar)
 
         tbody.appendChild(tr);
-
-
 
     });
 
     tabela.appendChild(tbody);
-
     return tabela;
+}
+
+/**
+ * CARREGA OS FABRICANTES DISPONÍVEIS NO SELECT DO FORMULÁRIO DE VEÍCULO
+ */
+const carregarFabricantesVeiculo = async function () {
+    const selectFabricante = document.getElementById("fabricante-veiculo");
+    const selectModelo = document.getElementById("modelo-veiculo");
+    
+    setRemoverElementos("fabricante-veiculo option")
+    setRemoverElementos("modelo-veiculo option")
+
+    const dadosFabricantes = await getData("http://localhost:8080/api/fabricantes")
+
+    // Adiciona opção padrão
+    const optionPadrao = document.createElement("option");
+    optionPadrao.value = "";
+    optionPadrao.textContent = "Selecione um fabricante";
+    selectFabricante.appendChild(optionPadrao);
+
+    // adiciona os fabricantes
+    dadosFabricantes.forEach(function(fabricante) {
+        const option = document.createElement("option");
+        option.value = fabricante.id;
+        option.textContent = fabricante.nome;
+        selectFabricante.appendChild(option);
+    });
+
+    // Inicializa o select de modelo congelado
+    const optionModeloPadrao = document.createElement("option");
+    optionModeloPadrao.value = "";
+    optionModeloPadrao.textContent = "Selecione um fabricante primeiro";
+    selectModelo.appendChild(optionModeloPadrao);
+    selectModelo.disabled = true; // Congela o select até selecionar um fabricante
+}
+
+/**
+ * Carrega os modelos disponíveis no select baseado no fabricante selecionado
+ */
+
+const carregarModelosVeiculo = async function (fabricanteId) {
+    const selectModelo = document.getElementById("modelo-veiculo");
+    setRemoverElementos("#modelo-veiculo option");
+
+    //se não selecionou fabricante, congela o select
+    if (!fabricanteId) {
+        const optionPadrao = document.createElement("option");
+        optionPadrao.value = "";
+        optionPadrao.textContent = "Selecione um fabricante primeiro";
+        selectModelo.appendChild(optionPadrao);
+        selectModelo.disabled = true; // congela o select
+        return;
+    }
+
+    // busca e filtra os modelos
+    const dadosModelos = await getData("http://localhost:8080/api/modelos");
+    const modelosFiltrados = dadosModelos.filter(function(modelo){
+        return modelo.fabricante.id == fabricanteId;
+    });
+
+    // Se não existem modelos para o fabricante, congela o select
+    if (modelosFiltrados.length === 0) {
+        const optionSemModelo = document.createElement("option");
+        optionSemModelo.value = "";
+        optionSemModelo.textContent = "Nenhum modelo para esse fabricante";
+        selectModelo.appendChild(optionSemModelo);
+        selectModelo.disabled = true; // congela o select
+        return;
+    }
+
+    // habilita o select e adidciona a opção padrão
+    selectModelo.disabled = false; // descongela o select
+    const optionPadrao = document.createElement("option");
+    optionPadrao.value = "";
+    optionPadrao.textContent = "Selecione um modelo";
+    selectModelo.appendChild(optionPadrao);
+
+    // adiciona os modelos filtrados
+    modelosFiltrados.forEach(function(modelo){
+        const option = document.createElement("option");
+        option.value = modelo.id;
+        option.textContent = modelo.nome;
+        selectModelo.appendChild(option);
+    });
+}
+
+/**
+ * atualiza a tabela de veículos na página
+ * remove a tabela existente e cria uma nova com os dados atualizados
+ */
+
+const atualizarTabelaVeiculos = async function () {
+    setRemoverElementos(".table-dados");
+    document.querySelector("#veiculos").style.display = "block";
+    const dadosVeiculos = await getData("http://localhost:8080/api/veiculos");
+    document.querySelector("#veiculos").appendChild(criarTabelaVeiculos(dadosVeiculos));
+}
 
 
-    //dados[0].placa.substring(0, 2) + "***" + dados[0].placa.substring(7, 5)
+/**
+ * valida o formato de placa do veículo
+ */
+
+const validarPlaca = function(placa) {
+
+    if(placa === undefined && placa === null && placa === ""){
+        return{valido: false,
+        mensagem: "Deve conter uma placa"
+        }
+    }
+
+    // remove espaços em branco e hífens
+    placa = placa.trim().toUpperCase().replace(/-/g, '');
+
+    //formato antigo: ABC1234 (3 letras + 4 números)
+    const padraoAntigo = /^[A-Z]{3}[0-9]{4}/;
+
+    //FORMATO MERCOSUL: ABC1D23 (3 LETRAS + 1 NÚMERO + 1 LETRA + 2 NÚMEROS)
+    const padraoMercosul = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/;
+
+    if (padraoAntigo.test(placa) || padraoMercosul.test(placa)) {
+        return {valido: true, mensagem: "" };
+    }
+
+    return {
+        valido: false,
+        mensagem: "Placa inválida. Use o formato ABC1234 (antigo) ou ABC1D23 (Mercosul)."
+    };
+}
+
+/**
+ * valida os dados do formulário do veículo
+ * verifica se todos os campos obrigatórios foram preenchidos e se os valores estão dentro dos limites esperados
+ */
+
+const validarVeiculo = function(veiculo) {
+    const anoAtual = new Date().getFullYear();
+    const selectModelo = document.getElementById("modelo-veiculo");
+    const selectFabricante = document.getElementById("fabricante-veiculo");
+
+    //verifica se selecionou fabricante
+    if (!selectFabricante.value) {
+        return { valido: false, mensagem: "Por favor, selecione um fabricante"};
+    }
+
+    //verifica se o select do modelo está desabilitado
+    if (selectModelo.disabled) {
+        return { valido: false, mensagem: "Não há modelos disponíveis para o fabricante selecionado. Por favor, cadastre um modelo primeiro."};
+    }
+
+    //verifica se selecionou um modelo
+    if (!veiculo.modelo || !veiculo.modelo.id) {
+        return { valido: false, mensagem: "Por favor, selecione um modelo."};
+    }
+
+    //verifica o ano do veículo
+    if (!veiculo.ano || veiculo.ano < 1900 || veiculo.ano > anoAtual + 1) {
+        return { valido: false, mensagem: `O ano deve estar entre 1900 e ${anoAtual + 1}.`};
+    }
+
+    //verifica a placa do veículo
+    if (!veiculo.placa || veiculo.placa.trim() === "") {
+        return { valido: false, mensagem: "Por favor, informe a placa do veículo."};
+    }
+
+    const validacaoPlaca = validarPlaca(veiculo.placa);
+    if (!validacaoPlaca.valido) {
+        return { valido: false, mensagem: validacaoPlaca.mensagem};
+    }
+
+    //verifica a cor do veículo
+    if (!veiculo.cor || veiculo.cor.trim() === "") {
+        return { valido: false, mensagem: "Por favor, informe a cor do veículo."};
+    }
+
+    // verifica valor (aceita tanto 'preco' quanto 'valor' por compatibilidade)
+    const valorVeiculo = veiculo.valor || veiculo.preco;
+    if (!valorVeiculo || valorVeiculo <= 0) {
+        return { valido: false, mensagem: "O preço deve ser maior que zero"};
+    }
+
+    return { valido: true, mensagem: ""};
+}
+
+/**
+ * limpa todos os campos do formulário de veículo
+ */
+const limparFormularioVeiculo = function() {
+    document.getElementById("fabricante-veiculo").value = "";
+    document.getElementById("modelo-veiculo").value = "";
+    document.getElementById("ano-veiculo").value = "";
+    document.getElementById("placa-veiculo").value = "";
+    document.getElementById("cor-veiculo").value = "";
+    document.getElementById("preco-veiculo").value = "";
+}
+
+// =================================================================
+// INICIALIZAÇÃO DOS EVENTOS DE VEÍCULOS
+// =================================================================
+
+/**
+ * Inicializa todos os eventos de click relacionados a veículos
+ * 
+ * Esta função centraliza todos os event listeners dos botões e formulários
+ * relacionados ao módulo de veículos, mantendo o código organizado
+ * 
+ * Eventos configurados:
+ * - click no botão "veiculos" do menu (bt"veiculos)
+ * - click no botão "novo veiculo" (novo-veiculo)
+ * - change no select de fabricante do formulário
+ * - input no campo de placa (formatação)
+ * - blur no campo de placa (verificação de duplicidade)
+ * - submit do formulário de veículo
+ */
+const inicializarEventosVeiculos = function() {
+
+    // =============================================
+    // Evento de click no menu "Veículos"
+    // =============================================
+    document.getElementById("bt-veiculos").addEventListener("click", async function (event) {
+        setMostrarOcultarElemento(true, ".minha-section");
+        setRemoverElementos(".table-dados");
+        document.querySelector("#veiculos").style.display = "block";
+
+        // carrega e exibe a tabela de veiculos
+        const dadosVeiculos = await getData("http://localhost:8080/api/veiculos");
+        if (dadosVeiculos.ok === false) {
+            document.querySelector("#veiculos").innerHTML = "<p>Erro ao carregar dados dos veículos.</p>";
+            document.querySelector("#veiculos").style.color = "red";
+            return;
+        }
+        document.querySelector("#veiculos").appendChild(criarTabelaVeiculos(dadosVeiculos));
+    });
+
+
+
+
 
 
 }

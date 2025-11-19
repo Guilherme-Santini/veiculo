@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.veiculo.dto.ModeloDTO;
 import com.veiculo.dto.VeiculoDTO;
 import com.veiculo.entity.Veiculo;
-import com.veiculo.mapper.ModeloMapper;
 import com.veiculo.mapper.VeiculoMapper;
 import com.veiculo.repository.VeiculoRepository;
 import com.veiculo.util.ValidaVeiculo;
@@ -65,5 +63,10 @@ public class VeiculoService {
     @Transactional(readOnly = true)
     public VeiculoDTO buscarPorId(Long id) {
         return repository.findById(id).map(VeiculoMapper::toDto).orElseThrow(() -> new RuntimeException("Veículo não encontrato"));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existePorPlaca(String placa) {
+        return repository.existsByPlaca(placa);
     }
 }

@@ -207,19 +207,7 @@ document.getElementById("botao-enviar-modelo").addEventListener("click", async f
 });
 
 
-//VEÍCULOS
 
-//Mostra a tabela veículos
-document.getElementById("bt-veiculos").addEventListener("click", async function (event) {
-    setMostrarOcultarElemento(true, ".minha-section");
-    // removeTabelaRepetida("table-veiculos");
-    setRemoverElementos(".table-dados");
-    document.querySelector("#veiculos").style.display = "block";
-    const dadosVeiculos = await getData("http://localhost:8080/api/veiculos");
-    if (dadosVeiculos) {
-        document.querySelector("#veiculos").appendChild(criarTabelaVeiculos(dadosVeiculos, "Veiculos", "table-dados"));
-    }
-});
 
 //botão click novo veículo
 document.getElementById("novo-veiculo").addEventListener("click", async function (event) {

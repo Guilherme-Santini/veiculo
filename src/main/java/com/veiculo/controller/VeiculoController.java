@@ -50,4 +50,10 @@ public class VeiculoController {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/existe/{placa}")
+    public boolean existePorPlaca(@PathVariable String placa) {
+        return service.existePorPlaca(placa);
+    }
+    
 }
