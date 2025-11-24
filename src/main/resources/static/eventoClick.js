@@ -207,16 +207,6 @@ document.getElementById("botao-enviar-modelo").addEventListener("click", async f
 });
 
 
-
-
-//botão click novo veículo
-document.getElementById("novo-veiculo").addEventListener("click", async function (event) {
-    setMostrarOcultarElemento(true, ".modal-content")
-    MODAL.style.display = "block";
-    setMostrarOcultarElemento(false, ".modal-content-veiculo");
-})
-
-
 CLOSE_MODAL_BUTTON.addEventListener("click", function () {
     MODAL.style.display = "none";
-})
+});

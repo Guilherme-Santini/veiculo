@@ -73,7 +73,7 @@ const criarTabelaVeiculos = function(dados) {
             if (confirm("Tem certeza que deseja excluir este veículo?")) {
                 const resultado = await setDelete(`http://localhost:8080/api/veiculos/${item.id}`);
 
-                if (isSuccess(resultado)) {
+                if (resultado.ok === true) {
                     this.parentElement.remove();
                     alert("Veículo excluído com sucesso!")
                 } else {
@@ -99,8 +99,8 @@ const carregarFabricantesVeiculo = async function () {
     const selectFabricante = document.getElementById("fabricante-veiculo");
     const selectModelo = document.getElementById("modelo-veiculo");
     
-    setRemoverElementos("fabricante-veiculo option")
-    setRemoverElementos("modelo-veiculo option")
+    setRemoverElementos("#fabricante-veiculo option")
+    setRemoverElementos("#modelo-veiculo option")
 
     const dadosFabricantes = await getData("http://localhost:8080/api/fabricantes")
 
@@ -283,7 +283,8 @@ const limparFormularioVeiculo = function() {
     document.getElementById("ano-veiculo").value = "";
     document.getElementById("placa-veiculo").value = "";
     document.getElementById("cor-veiculo").value = "";
-    document.getElementById("preco-veiculo").value = "";
+    document.getElementById("descricao-veiculo").value = "";
+    document.getElementById("valor-veiculo").value = "";
 }
 
 // =================================================================
@@ -324,9 +325,135 @@ const inicializarEventosVeiculos = function() {
         document.querySelector("#veiculos").appendChild(criarTabelaVeiculos(dadosVeiculos));
     });
 
+    // =============================================
+    // Evento de click no menu "Novo Veículo"
+    // =============================================
+    document.getElementById("novo-veiculo").addEventListener("click", async function (event) {
+        setMostrarOcultarElemento(true, ".modal-content");
 
+        //Carrega os fabricantes para o select de veículos
+        await carregarFabricantesVeiculo();
 
+        MODAL.style.display = "block";
+        setMostrarOcultarElemento(false, ".modal-content-veiculo");
+    });
 
+    // =============================================
+    // Evento: mudança do select do fabricante
+    // =============================================
+    document.getElementById("fabricante-veiculo").addEventListener("change", async function (event) {
+        const fabricanteId = event.target.value;
+        await carregarModelosVeiculo(fabricanteId);
+    });
 
+    // =============================================
+    // Evento: formatação automática da placa
+    // =============================================
+    document.getElementById("placa-veiculo").addEventListener("input", function(event) {
+        let valor = event.target.value.toUpperCase();
 
+        // Remove caracteres não permitidos (mantém apenas letras e números)
+        valor = valor.replace(/[^A-z0-9]/g, '');
+
+        // Limita o tamanho em 7 caracteres (formato Mercosul ou antigo sem hífen)
+        if (valor.length > 7) {
+            valor = valor.substring(0, 7);
+        }
+
+        event.target.value = valor;
+    });
+
+    // =============================================
+    // Evento: verificação de placa duplicada ao sair do campo
+    // =============================================
+    document.getElementById("placa-veiculo").addEventListener("blur", async function (event) {
+        const placa = event.target.value.trim().toUpperCase().replace(/-/g, '');
+
+        //só verifica se a placa tem formato válido
+        if (placa.length >= 7) {
+            const validacao = validarPlaca(placa);
+            if (validacao.valido) {
+                const existe = await getData(`http://localhost:8080/api/veiculos/existe/${placa}`);
+                if (existe) {
+                    event.target.style.borderColor = "red";
+                    event.target.style.backgroundColor = "#ffe6e6";
+                    alert(`Atenção!\n\nA Placa ${placa} já está cadastrada no sistema.\n\nPor favor, verifique se o veículo já existe antes de continuar`);
+                } else {
+                    event.target.style.borderColor = "";
+                    event.target.style.backgroundColor = "";
+                }
+            }
+        }
+        
+    });
+
+    // =============================================
+    // Evento: submissão do formulário de veículo
+    // =============================================
+    document.querySelector("#form-veiculo .botao-enviar").addEventListener("click", async function (event) {
+        event.preventDefault();
+
+        const modeloId = document.getElementById("modelo-veiculo").value;
+        const ano = parseInt(document.getElementById("ano-veiculo").value);
+        //Remove híden e espaços, converte para maiúsculas
+        const placa = document.getElementById("placa-veiculo").value.trim().toUpperCase().replace(/-/g, '');
+        const cor = document.getElementById("cor-veiculo").value.trim();
+        const valor = parseFloat(document.getElementById("valor-veiculo").value);
+
+        //cria o objeto veículo conforme o DTO do backend
+        const novoVeiculo = {
+            placa,
+            cor,
+            ano,
+            valor,
+            modelo: { id: modeloId}
+        };
+
+        // Valida os dados
+        const validacao = validarVeiculo(novoVeiculo);
+        if (!validacao.valido) {
+            alert(validacao.mensagem);
+            return;
+        }
+        
+        // Envia para a API
+        const resultado = await setPost("http://localhost:8080/api/veiculos", novoVeiculo);
+
+        if (resultado.ok === true) {
+            alert("Veículo cadastrado com sucesso!");
+            limparFormularioVeiculo();
+            MODAL.style.display = "none";
+            await atualizarTabelaVeiculos();
+        } else {
+            //log do erro para debug
+            console.error("Erro ao cadastrar veículo", resultado);
+
+            // Tratamento específico para conflito
+            if (resultado.status === 409) {
+                //verifica se a mensagem menciona placa
+                const mensagemBackend = resultado.mensagem || "";
+                if (mensagemBackend.toLoweCase().includes("placa")) {
+                    alert(`Placa Duplicada!\n\nA placa ${placa} já está cadastrada no sistema.\n\nVerifique se o veículo já existe ou se digitou a placa corretamente.`);
+                } else {
+                    //Pode ser outro tipo de conflito (ex: mesmo fabricante+modelo+ano)
+                    alert(`Registro Duplicado!\n\n${mensagemBackend}\n\nEste veículo (ou uma combinação similar) já existe no sistema.\n\nVerifique os dados informados.`);
+                }
+                
+            }else {
+                mostrarErro(resultado);
+            }
+        }
+    });
+
+}
+
+// ==========================================
+// INICIALIZAÇÃO AUTOMÁTICA
+// ==========================================
+//EXECUTA A INICIALIZAÇÃO QUANDO O DOM ESTIVER ESTIVER CARREGADO
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarEventosVeiculos);
+} else {
+    // DOM já está carregado
+    inicializarEventosVeiculos();
 }
