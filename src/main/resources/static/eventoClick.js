@@ -50,16 +50,21 @@ async function criarFabricante() {
 //click botão header fabricante
 document.getElementById("bt-fabricantes").addEventListener("click", criarFabricante);
 
+//variável global para armazenar o ID do fabricante sendo editado
+let fabricanteEmEdicao = null;
+
 //Botão click novo fabricante
 document.getElementById("novo-fabricante").addEventListener("click", async function (event) {
+    fabricanteEmEdicao = null; // limpa o modo de edição
     setMostrarOcultarElemento(true, ".modal-content");
+
+    //Atualiza o titulo modal
+    document.getElementById("modal-title").textContent = "Cadastro Fabricante";
 
     //carregar json com nomes de paises do arquivo externo json
     const dadosPaises = await getData("http://localhost:8080/paises.json");
     const selectPais = document.getElementById("pais-fabricante");
     setRemoverElementos("#pais-fabricante option");
-
-
     dadosPaises.forEach(function (pais) {
         const option = document.createElement("option");
         option.value = pais.nome_pais;
@@ -87,20 +92,60 @@ document.getElementById("botao-enviar-fabricante").addEventListener("click", asy
         return;
     }
 
-    const dadosFabricantes = await setPost("http://localhost:8080/api/fabricantes", dadosFabricanteJson);
-    if (dadosFabricantes.status === 201) {
-        alert("Fabricante adicionado com sucesso!")
+    let resultado;
+    if (fabricanteEmEdicao) {
+        resultado = await putData(`http://localhost:8080/api/fabricantes/${fabricanteEmEdicao}`, dadosFabricanteJson);
+    } else {
+        // Modo de cadastro - usa POST
+        resultado = await setPost("http://localhost:8080/api/fabricantes", dadosFabricanteJson);
+    }
+    
+    if (isSuccess(resultado)) {
+        const mensagem = fabricanteEmEdicao ? "Fabricante atualizado com sucesso!" : "Fabricante salvo!";
+        alert(mensagem)
         document.getElementById("nome-fabricante").value = "";
         document.getElementById("pais-fabricante").value = "";
+        fabricanteEmEdicao = null; // limpa o modo de edição
         MODAL.style.display = "none";
 
         criarFabricante()
 
     } else {
-        alert("Erro ao adicionar o Fabricante")
+        mostrarErro(resultado);
     }
 });
 
+//Função para abrir o modal de edição de fabricante
+async function abrirModalEdicaoFabricante(fabricante) {
+    fabricanteEmEdicao = fabricante.id; // armazena o ID do fabricante sendo editado
+    setMostrarOcultarElemento(true, ".modal-content");
+
+    //Atualiza o titulo modal
+    document.getElementById("modal-title").textContent = "Editar Fabricante";
+
+    //carregar json com nomes de paises do arquivo externo json
+    const dadosPaises = await getData("http://localhost:8080/paises.json");
+    const selectPais = document.getElementById("pais-fabricante");
+    setRemoverElementos("#pais-fabricante option");
+    dadosPaises.forEach(function (pais) {
+        const option = document.createElement("option");
+        option.value = pais.nome_pais;
+        option.textContent = pais.nome_pais + " (" + pais.sigla + ")";
+        selectPais.appendChild(option);
+    });
+
+    //preenche os campos com os dados do fabricante
+    document.getElementById("nome-fabricante").value = fabricante.nome;
+    document.getElementById("pais-fabricante").value = fabricante.paisOrigem;
+
+    MODAL.style.display = "block";
+    setMostrarOcultarElemento(false, ".modal-content-fabricante")    
+}
+
+//=================================================================================
+//=================================================================================
+//=================================================================================
+//DELETAR FABRICANTE/MODELO
 //função deletar fabricante/modelo/veículo
 
 const deletarFabricante = async (item, tableTittle, endPoint) => {

@@ -3,12 +3,12 @@
     <meta charset="UTF-8">
     <title>Pagina de automoveis</title>
     <link rel="stylesheet" href="styles.css">
+    <script defer src="comum.js"></script>
     <script defer src="eventoClick.js"></script>
-    <script src="comum.js"></script>
     <script src="gerenciarElementos.js?r=1"></script>
     <script src="modelos.js"></script>
     <script src="veiculos.js"></script>
-    <script src="./fabricantes.js"></script>
+    <script src="./fabricantes.js?r=1"></script>
 </head>
 <body>
     <header class="site-header">
@@ -40,7 +40,7 @@
         <div id="modal">
             <span id="close-modal" class="close-button">&times;</span>
             <div id="modal-content-fabricante" class="modal-content modal-content-fabricante">
-                <div id="modal-fabricante-title">Cadastro de Fabricante</div>
+                <div id="modal-title">Cadastro de Fabricante</div>
                 <form id="form-fabricante">
                     <label for="nome-fabricante">Nome do Fabricante:</label>
                     <input type="text" id="nome-fabricante" name="nome-fabricante" required>
@@ -55,7 +55,7 @@
                         <option value="Itália">Itália</option>
                     </select>
                     <br>
-                    <button id="botao-enviar-fabricante"  class="botao-enviar">Enviar</button>
+                    <button id="botao-enviar-fabricante"  class="botao-enviar">Salvar</button>
                 </form>
             </div>
             <div id="modal-content-modelo" class="modal-content modal-content-modelo">
@@ -67,7 +67,7 @@
                     <label for="fabricante-modelo"> Fabricante</label>
                     <select  id="fabricante-modelo" name="fabricante-modelo" required></select>
                     <br>
-                    <button id="botao-enviar-modelo" class="botao-enviar">Enviar</button>
+                    <button id="botao-enviar-modelo" class="botao-enviar">Salvar</button>
                 </form>
             </div>
             <div id="modal-content-veiculo" class="modal-content modal-content-veiculo">
@@ -88,7 +88,7 @@
                     <input type="number" id="valor-veiculo" name="valor-veiculo" required>
                     <label for="placa-veiculo">Placa do Veículo</label>
                     <input type="text" id="placa-veiculo" name="placa-veiculo" required>
-                    <button class="botao-enviar">Enviar</button>
+                    <button class="botao-enviar">Salvar</button>
                 </form>
             </div>
         </div>

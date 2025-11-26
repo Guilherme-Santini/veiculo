@@ -90,10 +90,11 @@ table {
   margin: 0 auto;              /* Centraliza a tabela na página */
   border-collapse: collapse;   /* Junta as bordas da tabela */
   width: 80%;                  /* Largura opcional (ajustável) */
+
 }
 
 th, td {
-  border: 1px solid #333;      /* Borda sólida nas células e cabeçalhos */
+  border: 1px solid #333 !important; /* Borda sólida nas células e cabeçalhos */
   padding: 8px 12px;           /* Espaçamento interno */
   text-align: center;          /* Centraliza o conteúdo */
 }
@@ -114,6 +115,7 @@ th {
   box-shadow: var(--shadow-md);
   width: 300px;
   height: auto;
+  z-index: 1;
 }
 
 #close-modal {

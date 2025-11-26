@@ -4,7 +4,7 @@ const criarTabela = function(dados) {
     const thead = document.createElement("thead");
     const tbody = document.createElement("tbody");
 
-    const cabecalho = ["Nome", "País de Origem", "Deletar"];
+    const cabecalho = ["Nome", "País de Origem", "Ações"];
     const tr = document.createElement("tr");
     cabecalho.forEach(function(campo) {
         const th = document.createElement("th");
@@ -38,9 +38,25 @@ const criarTabela = function(dados) {
         tdPaisOrigem.textContent = item.paisOrigem;
         tr.appendChild(tdPaisOrigem);
                 
+        //Coluna de ações com botões editar e excluir
+        const tdAcoes = document.createElement("td");
+        tdAcoes.style.display = "flex";
+        tdAcoes.style.gap = "5px";
 
-        const deletar = document.createElement("td");
-        deletar.innerHTML = '<button class="btn">Deletar</button>';
+        // Botão Editar
+        const btnEditar = document.createElement("button");
+        btnEditar.textContent = "Editar";
+        btnEditar.classList.add("btn", "edit");
+        btnEditar.style.cursor = "pointer";
+        btnEditar.addEventListener("click", async function (event) {
+            await abrirModalEdicaoFabricante(item);
+        })
+
+
+        //Botão excluir
+        const deletar = document.createElement("button");
+        deletar.textContent = "Deletar";
+        deletar.classList.add("btn", "delet");
         deletar.addEventListener("click", () => {
             const linha = deletar.parentElement;
             if(deletarFabricante(item, trTittle.textContent, "fabricantes").ok){
@@ -49,8 +65,9 @@ const criarTabela = function(dados) {
 
         });
 
-        tr.appendChild(deletar)
-
+        tdAcoes.appendChild(btnEditar)
+        tdAcoes.appendChild(deletar)
+        tr.appendChild(tdAcoes)
         tbody.appendChild(tr);
     });
     tabela.appendChild(tbody);

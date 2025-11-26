@@ -419,7 +419,7 @@ const inicializarEventosVeiculos = function() {
         // Envia para a API
         const resultado = await setPost("http://localhost:8080/api/veiculos", novoVeiculo);
 
-        if (resultado.ok === true) {
+        if (isSuccess(resultado)) {
             alert("Veículo cadastrado com sucesso!");
             limparFormularioVeiculo();
             MODAL.style.display = "none";

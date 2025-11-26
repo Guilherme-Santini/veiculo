@@ -51,5 +51,70 @@ async function setPost(url, dados) {
     } catch (error) {
         return error;
     }
+}
+
+// função para requisições put
+async function putData(url, data) {
+    try {
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        });
+        if (response.ok){
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                return await response.json();
+            } else {
+                return await response.text();
+            }
+        } else {
+            try {
+                const error = await response.json();
+                return { error: true, status: response.status, ...error };
+            } catch {
+                return { error: true, status: response.status, message: response.statusText };
+            }
+        }  
+    } catch (error) {
+        return { error: true, message: "Erro de conexão: " + error.message };
+    }
+
     
+}
+
+// verifica se a resposta é sucesso
+function isSuccess(response) {
+    return response && !response.error;
+}
+
+// Mostra erro especifico do backend
+function mostrarErro(response) {
+    if (response.message) {
+        let mensagem = response.message;
+
+        //tratamento específico para erros comuns
+        if (response.status === 409) {
+            mensagem = "Conflito de Dados!\n\n" + response.message + "\n\nEste registro já existe no sistema ou há um conflito de informações.";
+        } else if (response.status === 400) {
+            mensagem = "Dados Inválidos!\n\n" + response.message;
+        } else if (response.status === 404) {
+            mensagem = "Não encontrado!\n\n" + response.message;
+        } else if (response.status === 500) {
+            mensagem = "Erro no Servidor!\n\n" + response.message + "\n\nPor favor, contate o administrador do sistema";
+        }
+
+        // Adiciona informações extras se disponíveis
+        if (response.error && response.error !== response.message) {
+            mensagem += "\n\nTipo: " + response.error;
+        }
+        if (response.timestamp) {
+            const data = new Date(response.timestamp).toLocaleString('pt-BR');
+            mensagem +="\nHorário: " + data;
+        }
+        
+        alert(mensagem);
+    } else{
+        alert("Erro desconhecido.")
+    }
 }
